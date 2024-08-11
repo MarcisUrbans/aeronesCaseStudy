@@ -3,7 +3,10 @@ import { SceneInit } from "../lib/initScene";
 
 export const CanvasComponent: FC = () => {
   useEffect(() => {
-    SceneInit("canvasComponent");
+    SceneInit({
+      canvaId: "canvasComponent",
+      videoSrc: "/video/stitchedVideo.mp4",
+    });
   }, []);
 
   return (

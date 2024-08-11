@@ -1,5 +1,5 @@
 import { CanvasComponent } from "./components/CanvasComponent";
-import { PlainText } from "./components/plainText";
+import { PanoramaVideo } from "./components/PanoramaVideo";
 
 function App() {
   return (
