@@ -1,15 +1,26 @@
+import { useRef } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/Addons.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { IParsedResponse } from "../types/apiResponse.types";
+import { parseBoundingBoxes } from "./parseBoundingBoxes";
 
 interface SceneInitProps {
   canvaId: string;
   videoSrc: string;
+  annotations?: IParsedResponse[];
 }
 
-export const SceneInit = ({ canvaId, videoSrc }: SceneInitProps) => {
+export const SceneInit = ({
+  canvaId,
+  videoSrc,
+  annotations,
+}: SceneInitProps) => {
   const width = 1600;
   const height = 900;
   const scene = new THREE.Scene();
+
+  const boundingBoxes = parseBoundingBoxes(scene, annotations || []);
 
   const camera = new THREE.PerspectiveCamera(75, width / height, 1, 100);
   camera.position.z = 10;
@@ -26,7 +37,7 @@ export const SceneInit = ({ canvaId, videoSrc }: SceneInitProps) => {
 
   // radius / width segments / height segments
   // larger width / height - better image quality
-  const sphereGeometry = new THREE.SphereGeometry(20, 32, 16);
+  const sphereGeometry = new THREE.SphereGeometry(20, 128, 64);
 
   const videoElement = document.createElement("video");
   videoElement.src = videoSrc;
@@ -36,6 +47,9 @@ export const SceneInit = ({ canvaId, videoSrc }: SceneInitProps) => {
   videoElement.crossOrigin = "anonymous";
   videoElement.play();
   const texture = new THREE.VideoTexture(videoElement);
+  // texture.minFilter = THREE.LinearFilter;
+  // texture.magFilter = THREE.LinearFilter;
+  // texture.format = THREE.RGBFormat;
 
   const material = new THREE.MeshBasicMaterial({ map: texture });
 
@@ -47,11 +61,24 @@ export const SceneInit = ({ canvaId, videoSrc }: SceneInitProps) => {
   const stats = new Stats();
   document.body.appendChild(stats.dom);
 
-  const animate = () => {
-    stats.update();
-    renderer.setAnimationLoop(() => renderer.render(scene, camera));
+  const controls = new OrbitControls(camera, renderer.domElement);
 
-    window.requestAnimationFrame(animate);
+  const animate = () => {
+    requestAnimationFrame(animate);
+    stats.update();
+    controls.update();
+
+    // Get current video time
+    const currentTime = videoElement.currentTime;
+
+    // Show or hide bounding boxes based on time
+    boundingBoxes.forEach((box: any) => {
+      const { start, end } = box.userData.timeRange;
+      box.visible = currentTime >= start && currentTime <= end;
+    });
+
+    // renderer.setAnimationLoop(() => renderer.render(scene, camera));
+    renderer.render(scene, camera);
   };
 
   animate();
