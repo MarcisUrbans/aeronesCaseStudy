@@ -1,50 +1,26 @@
-# React + TypeScript + Vite
+# Aerones case study
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+To get this up and running:
 
-Currently, two official plugins are available:
+- Clone the project
+- Add stitched video in /public/video with file name "stitchedVideo.mp4"
+- npm run dev. For me it runs on port 5173 - http://localhost:5173/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+User controls:
 
-## Expanding the ESLint configuration
+- zoom in / out; rotate camera
+- rewind 15s / 5s / 1 frame
+- play / pause
+- forward 1 frame / 5s / 15s
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+When forwarding / rewinding, video stops, so need to hit play again.
 
-- Configure the top-level `parserOptions` property like this:
+Info displayed
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- time in hh:mm:ss
+- frame
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Assumptions made:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- fps = 3. Basing on data - frame 102 with time 00:34 and frame 105 with time 00:35
+- current frame - knowing playback time and fps we can calculate the frame to match logic in data file. Getting it from three.js would require greater deepdive into all of this.
