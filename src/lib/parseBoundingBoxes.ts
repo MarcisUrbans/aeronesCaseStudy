@@ -22,15 +22,17 @@ export const parseBoundingBoxes = (
   const sphereRadius = 20;
 
   boundingBoxesData.forEach((boxData) => {
-    const { annotations, video_time } = boxData;
+    const { annotations, video_time, currentFrame } = boxData;
 
-    // in case thereš multiple annotations on same time frame
+    // In case there's multiple annotations on same time frame
     annotations.forEach((boundBox: any) => {
-      //depends on question - whats the data in bbox? What's area? For now divided video width by 1600 and height by 900 to somewhat keep aspect artio for drawing.
+      // For now divided video width by 1600 and height by 900 to somewhat keep aspect artio for drawing.
       const lat = boundBox.bbox[0] / 3.36;
-      const lon = boundBox.bbox[1] / 3.36;
-      const width = boundBox.bbox[2] / 3.36;
-      const height = boundBox.bbox[3] / 2.99;
+      const lon = boundBox.bbox[1] / 2.99;
+      const width = boundBox.bbox[2] - boundBox.bbox[0];
+      const height = boundBox.bbox[3] - boundBox.bbox[1];
+
+      // console.log({ currentFrame, lat, lon, width, height });
 
       // Should come from BE as number
       const time = video_time.split(":");
@@ -59,7 +61,7 @@ export const parseBoundingBoxes = (
 
       // Store time range for visibility control
       // for now keeping bbox visible for 3 sec
-      plane.userData.timeRange = { start: startTime, end: startTime + 3 };
+      plane.userData.timeRange = { start: startTime, end: startTime + 2 };
 
       scene.add(plane);
       boundingBoxes.push(plane);

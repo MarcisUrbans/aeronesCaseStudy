@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { SceneInit } from "../lib/initScene";
 import dataSet from "../api/frameData.json";
 import tempData from "../api/temp.json";
@@ -19,15 +19,27 @@ const prepareData = (): IParsedResponse[] => {
   return Object.values(data) as unknown as IParsedResponse[];
 };
 export const CanvasComponent: FC = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
   // const [parsedData, setParsedData] = useState<IParsedResponse[]>(
   //   prepareData()
   // );
 
+  const togglePlayer = () => {
+    if (isPlaying) {
+      videoRef.current?.pause();
+    } else {
+      videoRef.current?.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const getData = async () => {
     const data = await prepareData();
     SceneInit({
+      videoId: "videoPlayer",
       canvaId: "canvasComponent",
-      videoSrc: "/video/stitchedVideo.mp4",
       annotations: data,
     });
   };
@@ -37,8 +49,19 @@ export const CanvasComponent: FC = () => {
   }, []);
 
   return (
-    <div>
-      <canvas id="canvasComponent"></canvas>
-    </div>
+    <>
+      <canvas id="canvasComponent">
+        <video
+          id="videoPlayer"
+          src="/video/stitchedVideo.mp4"
+          ref={videoRef}
+          className="hidden"
+        ></video>
+      </canvas>
+
+      <div className="flex flex-col">
+        <button onClick={togglePlayer}>Play</button>
+      </div>
+    </>
   );
 };
