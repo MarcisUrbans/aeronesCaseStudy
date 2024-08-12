@@ -50,7 +50,6 @@
   "21_R_1592_5.27_.png": {
     "qr_val": "1592",
     "distance": "5.27",
-    "video_time": "00:07",
     "annotations": [
       {
         "id_nr": 104,
@@ -300,7 +299,6 @@
   "111_R_1972_5.23_.png": {
     "qr_val": "1972",
     "distance": "5.23",
-    "video_time": "00:37",
     "annotations": [
       {
         "id_nr": 105,
@@ -342,7 +340,6 @@
   "123_R_2028_5.71_.png": {
     "qr_val": "2028",
     "distance": "5.71",
-    "video_time": "00:41",
     "annotations": [
       {
         "id_nr": 107,
@@ -376,7 +373,6 @@
   "132_R_2066_5.95_.png": {
     "qr_val": "2066",
     "distance": "5.95",
-    "video_time": "00:44",
     "annotations": [
       {
         "id_nr": 129,
@@ -1010,7 +1006,6 @@
   "366_R_3062_18.61_.png": {
     "qr_val": "3062",
     "distance": "18.61",
-    "video_time": "02:02",
     "annotations": [
       {
         "id_nr": 4,
@@ -1716,7 +1711,6 @@
   "627_R_4178_33.48_.png": {
     "qr_val": "4178",
     "distance": "33.48",
-    "video_time": "03:29",
     "annotations": [
       {
         "id_nr": 109,
@@ -1806,7 +1800,6 @@
   "657_R_4308_34.67_.png": {
     "qr_val": "4308",
     "distance": "34.67",
-    "video_time": "03:40",
     "annotations": [
       {
         "id_nr": 117,
@@ -1872,7 +1865,6 @@
   "678_R_4404_36.18_.png": {
     "qr_val": "4404",
     "distance": "36.18",
-    "video_time": "03:46",
     "annotations": [
       {
         "id_nr": 125,
@@ -2434,7 +2426,6 @@
   "885_R_5302_47.67_.png": {
     "qr_val": "5302",
     "distance": "47.67",
-    "video_time": "04:55",
     "annotations": [
       {
         "id_nr": 126,
@@ -2860,7 +2851,6 @@
   "1041_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "05:47",
     "annotations": [
       {
         "id_nr": 46,
@@ -2878,7 +2868,6 @@
   "1044_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "05:48",
     "annotations": [
       {
         "id_nr": 52,
@@ -2955,7 +2944,6 @@
   "1065_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "05:55",
     "annotations": [
       {
         "id_nr": 62,
@@ -3077,7 +3065,6 @@
   "1107_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "06:09",
     "annotations": [
       {
         "id_nr": 77,
@@ -3122,7 +3109,6 @@
   "1116_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "06:12",
     "annotations": [
       {
         "id_nr": 84,
@@ -3319,7 +3305,6 @@
   "1182_R_5392_48.99_.png": {
     "qr_val": "5392",
     "distance": "48.99",
-    "video_time": "06:34",
     "annotations": [
       {
         "id_nr": 93,
@@ -3377,7 +3362,6 @@
   "1200_R_6652_59.68_.png": {
     "qr_val": "6652",
     "distance": "59.68",
-    "video_time": "06:40",
     "annotations": [
       {
         "id_nr": 95,
@@ -4027,7 +4011,6 @@
   "16_R_0_0_.png": {
     "qr_val": "0",
     "distance": "0",
-    "video_time": "08:00",
     "annotations": [
       {
         "id_nr": 1,
@@ -4045,7 +4028,6 @@
   "139_R_2096_6.31_.png": {
     "qr_val": "2096",
     "distance": "6.31",
-    "video_time": "08:01",
     "annotations": [
       {
         "id_nr": 3,

@@ -23,7 +23,7 @@ export const SceneInit = ({
   const boundingBoxes = parseBoundingBoxes(scene, annotations || []);
 
   const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
-  camera.position.z = 10;
+  camera.position.z = 15;
 
   const canvas = document.getElementById(canvaId) as HTMLElement; // TODO - remove this
   const renderer = new THREE.WebGLRenderer({
@@ -40,7 +40,7 @@ export const SceneInit = ({
   const sphereGeometry = new THREE.SphereGeometry(20, 128, 64);
 
   const videoElement = document.getElementById(videoId) as HTMLVideoElement;
-  console.log({ videoElement });
+
   if (videoElement) {
     videoElement.loop = true;
     videoElement.muted = true;
@@ -48,9 +48,9 @@ export const SceneInit = ({
     videoElement.crossOrigin = "anonymous";
   }
   const texture = new THREE.VideoTexture(videoElement);
-  // texture.minFilter = THREE.LinearFilter;
-  // texture.magFilter = THREE.LinearFilter;
-  // texture.format = THREE.RGBFormat;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.format = THREE.RGBFormat;
 
   const material = new THREE.MeshBasicMaterial({ map: texture });
 
@@ -65,7 +65,6 @@ export const SceneInit = ({
   const controls = new OrbitControls(camera, renderer.domElement);
 
   const animate = () => {
-    // console.log(renderer.info.render.frame);
     requestAnimationFrame(animate);
     // stats.update();
     controls.update();
