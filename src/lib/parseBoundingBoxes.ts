@@ -12,7 +12,7 @@ function latLonToVector3(lat: number, lon: number, radius: number) {
   return new THREE.Vector3(x, y, z);
 }
 
-const parseTime = (minutes: number, seconds: number) => minutes * 60 + seconds;
+const parseTime = (frame: number, fps: number) => frame / fps;
 
 export const parseBoundingBoxes = (
   scene: any,
@@ -22,23 +22,17 @@ export const parseBoundingBoxes = (
   const sphereRadius = 20;
 
   boundingBoxesData.forEach((boxData) => {
-    const { annotations, video_time } = boxData;
+    const { annotations, currentFrame } = boxData;
 
-    // in case thereš multiple annotations on same time frame
+    // In case there's multiple annotations on same time frame
     annotations.forEach((boundBox: any) => {
-      //depends on question - whats the data in bbox? What's area? For now divided video width by 1600 and height by 900 to somewhat keep aspect artio for drawing.
+      // For now divided video width by 1600 and height by 900 to somewhat keep aspect artio for drawing. Of course needs fixup.
       const lat = boundBox.bbox[0] / 3.36;
-      const lon = boundBox.bbox[1] / 3.36;
-      const width = boundBox.bbox[2] / 3.36;
-      const height = boundBox.bbox[3] / 2.99;
+      const lon = boundBox.bbox[1] / 2.99;
+      const width = boundBox.bbox[2] - boundBox.bbox[0];
+      const height = boundBox.bbox[3] - boundBox.bbox[1];
 
-      // Should come from BE as number
-      const time = video_time.split(":");
-
-      const startTime = parseTime(+time[0], +time[1]);
-
-      // const { lat, lon } = boxData;
-      // const { width, height } = boxData.size;
+      const startTime = parseTime(currentFrame, 3);
 
       // Create plane geometry for the bounding box
       const planeGeometry = new THREE.PlaneGeometry(width, height);
@@ -47,19 +41,20 @@ export const parseBoundingBoxes = (
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.3,
+        name: `${boundBox.category_name} ${boundBox.confidence}`,
       });
       const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
       // Position the plane
-      const position = latLonToVector3(lat, lon, sphereRadius - 1); // Slightly inside the sphere
+      const position = latLonToVector3(lat, lon, sphereRadius - 0.5); // Slightly inside the sphere
       plane.position.copy(position);
 
       // Make the plane face the camera
       plane.lookAt(new THREE.Vector3(0, 0, 0));
 
       // Store time range for visibility control
-      // for now keeping bbox visible for 3 sec
-      plane.userData.timeRange = { start: startTime, end: startTime + 3 };
+      // for now keeping bbox visible for 1 sec
+      plane.userData.timeRange = { start: startTime, end: startTime + 1 };
 
       scene.add(plane);
       boundingBoxes.push(plane);

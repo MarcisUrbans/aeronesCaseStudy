@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { RefObject, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -6,14 +6,14 @@ import { IParsedResponse } from "../types/apiResponse.types";
 import { parseBoundingBoxes } from "./parseBoundingBoxes";
 
 interface SceneInitProps {
+  videoId: string;
   canvaId: string;
-  videoSrc: string;
   annotations?: IParsedResponse[];
 }
 
 export const SceneInit = ({
+  videoId,
   canvaId,
-  videoSrc,
   annotations,
 }: SceneInitProps) => {
   const width = 1600;
@@ -22,8 +22,8 @@ export const SceneInit = ({
 
   const boundingBoxes = parseBoundingBoxes(scene, annotations || []);
 
-  const camera = new THREE.PerspectiveCamera(75, width / height, 1, 100);
-  camera.position.z = 10;
+  const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+  camera.position.z = 15;
 
   const canvas = document.getElementById(canvaId) as HTMLElement; // TODO - remove this
   const renderer = new THREE.WebGLRenderer({
@@ -39,17 +39,18 @@ export const SceneInit = ({
   // larger width / height - better image quality
   const sphereGeometry = new THREE.SphereGeometry(20, 128, 64);
 
-  const videoElement = document.createElement("video");
-  videoElement.src = videoSrc;
-  videoElement.loop = true;
-  videoElement.muted = true;
-  videoElement.playsInline = true;
-  videoElement.crossOrigin = "anonymous";
-  videoElement.play();
+  const videoElement = document.getElementById(videoId) as HTMLVideoElement;
+
+  if (videoElement) {
+    videoElement.loop = true;
+    videoElement.muted = true;
+    videoElement.playsInline = true;
+    videoElement.crossOrigin = "anonymous";
+  }
   const texture = new THREE.VideoTexture(videoElement);
-  // texture.minFilter = THREE.LinearFilter;
-  // texture.magFilter = THREE.LinearFilter;
-  // texture.format = THREE.RGBFormat;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.format = THREE.RGBFormat;
 
   const material = new THREE.MeshBasicMaterial({ map: texture });
 
@@ -58,14 +59,14 @@ export const SceneInit = ({
   const mesh = new THREE.Mesh(sphereGeometry, material);
   scene.add(mesh);
 
-  const stats = new Stats();
-  document.body.appendChild(stats.dom);
+  // const stats = new Stats();
+  // document.body.appendChild(stats.dom);
 
   const controls = new OrbitControls(camera, renderer.domElement);
 
   const animate = () => {
     requestAnimationFrame(animate);
-    stats.update();
+    // stats.update();
     controls.update();
 
     // Get current video time
