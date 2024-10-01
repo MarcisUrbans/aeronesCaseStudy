@@ -20,9 +20,14 @@ export const SceneInit = ({
   const height = 900;
   const scene = new THREE.Scene();
 
-  const boundingBoxes = parseBoundingBoxes(scene, annotations || []);
+  // Set up the camera
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
 
-  const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
   camera.position.z = 15;
 
   const canvas = document.getElementById(canvaId) as HTMLElement; // TODO - remove this
@@ -35,8 +40,10 @@ export const SceneInit = ({
   renderer.setSize(width, height);
   document.body.appendChild(renderer.domElement);
 
-  // radius / width segments / height segments
-  // larger width / height - better image quality
+  // Add lighting (optional for better visuals)
+  const light = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(light);
+
   const sphereGeometry = new THREE.SphereGeometry(20, 128, 64);
 
   const videoElement = document.getElementById(videoId) as HTMLVideoElement;
@@ -47,40 +54,58 @@ export const SceneInit = ({
     videoElement.playsInline = true;
     videoElement.crossOrigin = "anonymous";
   }
-  const texture = new THREE.VideoTexture(videoElement);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.format = THREE.RGBFormat;
 
-  const material = new THREE.MeshBasicMaterial({ map: texture });
+  // Create a texture from the video
+  const videoTexture = new THREE.VideoTexture(videoElement);
 
-  material.side = THREE.BackSide;
+  // Create a plane geometry for the video and apply the video texture
+  // const planeGeometry = new THREE.PlaneGeometry(16, 9); // Assuming a 16:9 video aspect ratio
+  const sphereMaterial = new THREE.MeshBasicMaterial({
+    map: videoTexture,
+    side: THREE.BackSide,
+  });
 
-  const mesh = new THREE.Mesh(sphereGeometry, material);
+  const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
   scene.add(mesh);
 
-  // const stats = new Stats();
-  // document.body.appendChild(stats.dom);
+  // Define top-left and bottom-right coordinates for multiple bounding boxes
+  const boundingBoxCoordinates = parseBoundingBoxes(scene, annotations || []);
+  console.log({ boundingBoxCoordinates });
+  // Create the bounding boxes and store them in an array
+  const boxHelpers: any[] = [];
+  boundingBoxCoordinates.forEach((coords: any) => {
+    console.log({ coords });
+    const boundingBox = new THREE.Box3().setFromCenterAndSize(
+      coords.center,
+      coords.size
+    );
+    const boxHelper = new THREE.Box3Helper(boundingBox, 0xff0000); // Red bounding box
+    boxHelper.visible = false; // Initially hidden
+    scene.add(boxHelper);
+    boxHelpers.push({ boxHelper, displayTime: coords.displayTime });
+  });
 
   const controls = new OrbitControls(camera, renderer.domElement);
-
-  const animate = () => {
+  // Create an animation loop
+  function animate() {
     requestAnimationFrame(animate);
-    // stats.update();
     controls.update();
+    // Update video texture if video is playing
+    if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+      videoTexture.needsUpdate = true;
+    }
 
-    // Get current video time
-    const currentTime = videoElement.currentTime;
-
-    // Show or hide bounding boxes based on time
-    boundingBoxes.forEach((box: any) => {
-      const { start, end } = box.userData.timeRange;
-      box.visible = currentTime >= start && currentTime <= end;
+    // Check the current time of the video and display each bounding box at the defined times
+    boxHelpers.forEach(({ boxHelper, displayTime }) => {
+      // console.log({ boxHelper, video: videoElement.currentTime, displayTime });
+      if (videoElement.currentTime >= displayTime && !boxHelper.visible) {
+        boxHelper.visible = true; // Show bounding box when the time is reached
+      }
     });
 
-    // renderer.setAnimationLoop(() => renderer.render(scene, camera));
     renderer.render(scene, camera);
-  };
+  }
 
+  // Start the animation loop
   animate();
 };
