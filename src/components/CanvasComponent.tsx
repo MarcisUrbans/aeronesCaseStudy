@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { SceneInit } from "../lib/initScene";
 import dataSet from "../api/frameData.json";
 import { IParsedResponse } from "../types/apiResponse.types";
@@ -18,11 +18,29 @@ const prepareData = (): IParsedResponse[] => {
 };
 
 export const CanvasComponent: FC = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
 
   // basing on data - frame 102 with time 00:34 and frame 105 with time 00:35
   const fps = 3;
+
+  const handleKeyPress = (e: any) => {
+    switch (e.keyCode) {
+      case 32:
+        console.log("Spacebar", { e });
+        e.preventDefault();
+        e.stopPropagation();
+        togglePlayer();
+        break;
+      default:
+        console.log("someKey", { e });
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,17 +54,14 @@ export const CanvasComponent: FC = () => {
   }, []);
 
   const togglePlayer = () => {
-    if (isPlaying) {
+    if (!videoRef.current?.paused) {
       videoRef.current?.pause();
     } else {
       videoRef.current?.play();
     }
-
-    setIsPlaying(!isPlaying);
   };
 
   const rewindVideo = (seconds: number, action: "rewind" | "forward") => {
-    setIsPlaying(false);
     if (videoRef.current) {
       videoRef.current.pause();
       const currentTime = videoRef.current?.currentTime;
@@ -99,9 +114,6 @@ export const CanvasComponent: FC = () => {
           action={() => rewindVideo(1 / fps, "rewind")}
           text=" Rewind 1 Frame"
         />
-        <button className="bg-[#8bc462]" onClick={togglePlayer}>
-          {isPlaying ? "Pause" : "Play"}
-        </button>
         <RewindButton
           action={() => rewindVideo(1 / fps, "forward")}
           text=" Forward 1 Frame"

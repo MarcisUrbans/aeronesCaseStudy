@@ -1,9 +1,7 @@
-import { RefObject, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-import Stats from "three/examples/jsm/libs/stats.module.js";
 import { IParsedResponse } from "../types/apiResponse.types";
-import { parseBoundingBoxes } from "./parseBoundingBoxes";
+import { createBoundingBoxAlt, parseBoundingBoxes } from "./parseBoundingBoxes";
 
 interface SceneInitProps {
   videoId: string;
@@ -16,28 +14,10 @@ export const SceneInit = ({
   canvaId,
   annotations,
 }: SceneInitProps) => {
+  const videoResolution = { width: 5376, height: 2688 }; // 5K video dimensions
   const width = 1600;
   const height = 900;
   const scene = new THREE.Scene();
-
-  const boundingBoxes = parseBoundingBoxes(scene, annotations || []);
-
-  const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
-  camera.position.z = 15;
-
-  const canvas = document.getElementById(canvaId) as HTMLElement; // TODO - remove this
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    antialias: true,
-    logarithmicDepthBuffer: true,
-  });
-
-  renderer.setSize(width, height);
-  document.body.appendChild(renderer.domElement);
-
-  // radius / width segments / height segments
-  // larger width / height - better image quality
-  const sphereGeometry = new THREE.SphereGeometry(20, 128, 64);
 
   const videoElement = document.getElementById(videoId) as HTMLVideoElement;
 
@@ -48,21 +28,60 @@ export const SceneInit = ({
     videoElement.crossOrigin = "anonymous";
   }
   const texture = new THREE.VideoTexture(videoElement);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.format = THREE.RGBFormat;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  // texture.mapping = THREE.EquirectangularReflectionMapping;
 
-  const material = new THREE.MeshBasicMaterial({ map: texture });
+  // radius / width segments / height segments
+  // larger width / height - better image quality
+  const sphereGeometry = new THREE.SphereGeometry(25, 128, 64);
+  const sphereMaterial = new THREE.MeshBasicMaterial({
+    map: texture,
+    color: 0xaaaaaa,
+  });
 
-  material.side = THREE.BackSide;
+  sphereMaterial.side = THREE.BackSide;
 
-  const mesh = new THREE.Mesh(sphereGeometry, material);
-  scene.add(mesh);
+  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+  //Video seemed to be inverted
+  sphere.scale.set(-1, 1, 1);
+  scene.add(sphere);
+
+  const camera = new THREE.PerspectiveCamera(75, width / height, 1, 1000);
+  camera.position.z = 30;
+
+  const canvas = document.getElementById(canvaId) as HTMLElement;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    logarithmicDepthBuffer: true,
+  });
+
+  renderer.setSize(width, height);
+  document.body.appendChild(renderer.domElement);
+
+  const boundingBoxes = parseBoundingBoxes(
+    scene,
+    annotations || [],
+    videoResolution
+  );
+
+  console.log({ boundingBoxes });
+
+  // const light = new THREE.AmbientLight();
+  // light.intensity = 2;
+
+  // scene.add(light);
 
   // const stats = new Stats();
   // document.body.appendChild(stats.dom);
 
   const controls = new OrbitControls(camera, renderer.domElement);
+  // controls.minDistance = 3;
+  // controls.maxDistance = 30;
+
+  const axesHelper = new THREE.AxesHelper(5);
+  scene.add(axesHelper);
 
   const animate = () => {
     requestAnimationFrame(animate);
@@ -70,15 +89,15 @@ export const SceneInit = ({
     controls.update();
 
     // Get current video time
-    const currentTime = videoElement.currentTime;
+    const currentTime = videoElement.currentTime * 1000;
 
     // Show or hide bounding boxes based on time
-    boundingBoxes.forEach((box: any) => {
-      const { start, end } = box.userData.timeRange;
-      box.visible = currentTime >= start && currentTime <= end;
+    boundingBoxes.forEach((el: any) => {
+      const { time, box } = el;
+
+      box.visible = currentTime >= time && currentTime <= time + 1000;
     });
 
-    // renderer.setAnimationLoop(() => renderer.render(scene, camera));
     renderer.render(scene, camera);
   };
 
